@@ -1,0 +1,71 @@
+C51 COMPILER V9.54   ADC0809                                                               05/29/2022 01:03:49 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE ADC0809
+OBJECT MODULE PLACED IN .\Objects\ADC0809.obj
+COMPILER INVOKED BY: D:\KEIL\C51\BIN\C51.EXE Src\ADC0809.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Include) DEBUG OBJECTEXTEND
+                    - PRINT(.\Listings\ADC0809.lst) TABS(2) OBJECT(.\Objects\ADC0809.obj)
+
+line level    source
+
+   1          #include"ADC0809.h"
+   2          #include<reg52.h>
+   3          #include"delay.h"
+   4          #include"uart.h"
+   5          
+   6          sbit ADDA=P1^0;        // 地址A
+   7          sbit ADDB=P1^1;        // 地址B
+   8          sbit ADDC=P1^2;        // 地址C
+   9          sbit START_ALE=P1^4;   // 地址装载，转换启动脚
+  10          sbit OE=P1^5;          // 输出使能
+  11          sbit EOC=P1^6;         // 转换标志位
+  12          
+  13          //ADC初始化
+  14          void ADC_Init()
+  15          {
+  16   1         ADDA=0;
+  17   1         ADDB=0;
+  18   1         ADDC=0;
+  19   1         START_ALE=0;
+  20   1      }
+  21          
+  22          
+  23          //ADC转换开始函数
+  24          void ADC_START()      
+  25          {
+  26   1        START_ALE=0;
+  27   1        delay_us(2);
+  28   1        START_ALE=1;          //一个正脉冲
+  29   1        delay_us(20);
+  30   1        START_ALE=0;
+  31   1        while(EOC==0);
+  32   1        OE=1;
+  33   1      }
+  34          
+  35          //获得模数转换后的数据
+  36          float Get_AdcData()
+  37          {
+  38   1        unsigned int ADC_Data;
+  39   1         float temp;
+  40   1         ADC_START();
+  41   1         ADC_Data=P0; 
+  42   1         OE=0;
+  43   1         temp = (float)ADC_Data/51*1.0;
+  44   1         return temp;  
+  45   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     59    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   ADC0809                                                               05/29/2022 01:03:49 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

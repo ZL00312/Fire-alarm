@@ -1,0 +1,180 @@
+C51 COMPILER V9.54   IIC                                                                   05/20/2022 10:43:12 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE IIC
+OBJECT MODULE PLACED IN .\Objects\IIC.obj
+COMPILER INVOKED BY: D:\KEIL\C51\BIN\C51.EXE Src\IIC.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Include) DEBUG OBJECTEXTEND PRI
+                    -NT(.\Listings\IIC.lst) TABS(2) OBJECT(.\Objects\IIC.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include"uart.h"
+   3          
+   4          sbit SDA=P2^0;
+   5          sbit SCL=P2^1;
+   6          
+   7           
+   8          typedef  unsigned char BYTE;
+   9          BYTE BUF[8];
+  10           
+  11          unsigned char num;
+  12          unsigned char a,b,sec,count;
+  13          unsigned char ge,shi,bai,qian,wan;            //显示变量 
+  14          int dis_data,dis_data1;                       //变量
+  15           
+  16          void conversion(unsigned int temp_data)  //  数据转换出 个，十，百，千，万
+  17          {  
+  18   1          wan=temp_data/10000+0x30 ;
+  19   1          temp_data=temp_data%10000;   //取余运算
+  20   1          qian=temp_data/1000+0x30 ;
+  21   1          temp_data=temp_data%1000;    //取余运算
+  22   1          bai=temp_data/100+0x30   ;
+  23   1          temp_data=temp_data%100;     //取余运算
+  24   1          shi=temp_data/10+0x30    ;
+  25   1          temp_data=temp_data%10;      //取余运算
+  26   1          ge=temp_data+0x30; 
+  27   1      }
+  28           
+  29          void NOP()
+  30          {
+  31   1          _nop_();
+*** WARNING C206 IN LINE 31 OF Src\IIC.c: '_nop_': missing function-prototype
+*** ERROR C264 IN LINE 31 OF Src\IIC.c: intrinsic '_nop_': declaration/activation error
+  32   1          _nop_();
+  33   1          _nop_();
+  34   1          _nop_();
+  35   1          _nop_();
+  36   1      }
+  37           
+  38          void Delay(unsigned int i)
+  39          {
+  40   1          unsigned int j,k;
+  41   1          for(j=i;j>0;j--)
+  42   1          for(k=110;k>0;k--);
+  43   1      }
+  44           
+  45          void BH1750_Start()
+  46          {
+  47   1          SDA=1;
+  48   1          NOP();
+  49   1          SCL=1;
+  50   1          NOP();
+  51   1          SDA=0;
+  52   1          NOP();
+C51 COMPILER V9.54   IIC                                                                   05/20/2022 10:43:12 PAGE 2   
+
+  53   1          SCL=0;
+  54   1          NOP();
+  55   1      }
+  56           
+  57          void BH1750_Stop()
+  58          {
+  59   1          SDA=0;
+  60   1          NOP();
+  61   1          SCL=1;
+  62   1          NOP();
+  63   1          SDA=1;
+  64   1          NOP();
+  65   1      }
+  66           
+  67          void BH1750_Write_Byte(unsigned char dat)
+  68          {
+  69   1          unsigned char i,temp;
+  70   1          temp=dat;
+  71   1          for(i=0;i<8;i++)
+  72   1          {
+  73   2            temp=temp<<1;
+  74   2            SDA=CY;
+  75   2            NOP();
+  76   2            SCL=1;
+  77   2            NOP();
+  78   2            SCL=0;
+  79   2            NOP();
+  80   2          }
+  81   1          SDA=0;  //注意：以下6句不可少，否则读到的数据是不正常的，如00212等
+  82   1          NOP();
+  83   1          SCL=1;
+  84   1          NOP();
+  85   1          SCL=0;  
+  86   1          NOP();
+  87   1      }
+  88           
+  89          unsigned char BH1750_Read_Byte()
+  90          {
+  91   1          unsigned char i,x=0;
+  92   1          SDA=1;
+  93   1          NOP();
+  94   1          for(i=0;i<8;i++)
+  95   1          {
+  96   2          x=x<<1;
+  97   2          SCL=1;
+  98   2          NOP();
+  99   2          x=x|SDA;
+ 100   2          SCL=0;
+ 101   2          NOP();
+ 102   2          }
+ 103   1          return x;
+ 104   1      }
+ 105           
+ 106          void Responds()
+ 107          {
+ 108   1          SDA=0;
+ 109   1          NOP();
+ 110   1          SCL=1;
+ 111   1          NOP();
+ 112   1          SCL=0;
+ 113   1          NOP();
+ 114   1      }
+C51 COMPILER V9.54   IIC                                                                   05/20/2022 10:43:12 PAGE 3   
+
+ 115           
+ 116          void No_Responds()
+ 117          {
+ 118   1          SDA=1;
+ 119   1          NOP();
+ 120   1          SCL=1;
+ 121   1          NOP();
+ 122   1          SCL=0;
+ 123   1          NOP();
+ 124   1      }
+ 125           
+ 126          void Single_Write_BH1750(unsigned char reg_address)
+ 127          {
+ 128   1          BH1750_Start();
+ 129   1          BH1750_Write_Byte(0x46);
+ 130   1          //No_Responds();   //此语句不可少，否则返回的数值不会变化
+ 131   1          BH1750_Write_Byte(reg_address);
+ 132   1          //No_Responds();   //此语句不可少，否则返回的数值不会变化，2016.10.12日加
+ 133   1          BH1750_Stop();
+ 134   1      }
+ 135           
+ 136          void Multiple_Read_BH1750(void)
+ 137          {
+ 138   1          unsigned char i;
+ 139   1          BH1750_Start();
+ 140   1          BH1750_Write_Byte(0x47);
+ 141   1          for(i=0;i<2;i++)                      //连续读取2个地址数据，存储中BUF
+ 142   1              {
+ 143   2                  BUF[i]=BH1750_Read_Byte();          //BUF[0]存储0x32地址中的数据
+ 144   2                  if (i == 1)
+ 145   2                 {
+ 146   3                   No_Responds();               //最后一个数据需要回NOACK
+ 147   3                  }
+ 148   2                 else
+ 149   2                 { 
+ 150   3                   Responds();                //回应ACK
+ 151   3                 }
+ 152   2             }
+ 153   1              BH1750_Stop();                          //停止信号
+ 154   1              Delay(5);
+ 155   1      }
+ 156           
+ 157          
+ 158           
+ 159           
+ 160          
+ 161           
+ 162          
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  1 ERROR(S)

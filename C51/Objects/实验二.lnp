@@ -1,0 +1,10 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\ADC0809.obj",
+".\Objects\BH1750FVI.obj",
+".\Objects\delay.obj",
+".\Objects\DS18B20.obj",
+".\Objects\time.obj",
+".\Objects\uart.obj" 
+TO ".\Objects\实验二" 
+PRINT(".\Listings\实验二.m51") RAMSIZE(256) 

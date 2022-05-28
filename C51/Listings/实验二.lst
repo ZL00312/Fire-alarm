@@ -1,0 +1,56 @@
+C51 COMPILER V9.54   ______                                                                05/20/2022 10:47:16 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE ______
+OBJECT MODULE PLACED IN .\Objects\实验二.obj
+COMPILER INVOKED BY: D:\KEIL\C51\BIN\C51.EXE Src\实验二.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Include) DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\实验二.lst) TABS(2) OBJECT(.\Objects\实验二.obj)
+
+line level    source
+
+   1          #include<stdio.h>
+   2          #include<reg52.h>
+   3          #include<intrins.h>
+   4          #include<uart.h>
+   5          #include"DS18B20.h"
+   6          #include"delay.h"
+   7          #include"ADC0809.h"
+   8          #include"time.h"
+   9          #include"BH1750FVI.h"
+  10          
+  11          #define uint unsigned int
+  12          #define uchar unsigned char
+  13          
+  14          float temperature;
+  15          float smoke;
+  16          float light;
+  17          
+  18          void main()
+  19          {
+  20   1        uart_init();
+  21   1        Time_Init();
+  22   1        ADC_Init();
+  23   1        DS18B20_init();
+  24   1        while(1)
+  25   1        {   
+  26   2          temperature=temper_change();    
+  27   2          light = Get_BH1750_Data();
+  28   2          smoke=Get_AdcData();    
+  29   2          printf("temperature = %6.2f,light = %6.2f,smoke = %6.2f\r\n",temperature,light,smoke);
+  30   2          delay_us(1000);
+  31   2        }
+  32   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     93    ----
+   CONSTANT SIZE    =     50    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

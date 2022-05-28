@@ -1,0 +1,78 @@
+C51 COMPILER V9.54   TIME                                                                  05/29/2022 01:03:51 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE TIME
+OBJECT MODULE PLACED IN .\Objects\time.obj
+COMPILER INVOKED BY: D:\KEIL\C51\BIN\C51.EXE Src\time.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Include) DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\time.lst) TABS(2) OBJECT(.\Objects\time.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include"time.h"
+   3          #include <intrins.h>
+   4          
+   5          sbit clk=P1^7;
+   6          
+   7          //定时器初始化
+   8          void Time_Init()
+   9          {
+  10   1        TMOD=0x21;//设置定时器1的工作方式2---8位自动装填
+  11   1        TH1=0xf3;//设置初始值:使比特率为2400
+  12   1        TL1=0xf3;
+  13   1        TH0=0xff;
+  14   1        TL0=0xfe;
+  15   1        PCON=0x00;//SMOD=0，不加倍
+  16   1        TR1=1;//打开定时器中断开关
+  17   1        TR0=1;
+  18   1        TF0 = 0;
+  19   1        ET0 = 1;
+  20   1        REN=1;//打开允许串行接收位
+  21   1        SM0=0;//设置串行口通讯方式为方式1
+  22   1        SM1=1;
+  23   1        EA=1; //打开总中断
+  24   1        ES=1; //打开串口通讯中断
+  25   1      }
+  26          
+  27          
+  28          void NOP()
+  29          {
+  30   1          _nop_();
+  31   1          _nop_();
+  32   1          _nop_();
+  33   1          _nop_();
+  34   1          _nop_();
+  35   1      }
+  36          
+  37          void Delay(unsigned int i)
+  38          {
+  39   1          unsigned int j,k;
+  40   1          for(j=i;j>0;j--)
+  41   1          for(k=110;k>0;k--);
+  42   1      }
+  43          
+  44          
+  45          //中断，提供ADC0809的时钟
+  46          void pick() interrupt 1
+  47          {
+  48   1          TH0=0xff;
+  49   1          TL0=0xfe;
+  50   1          clk=!clk;
+  51   1      }
+  52          
+
+
+C51 COMPILER V9.54   TIME                                                                  05/29/2022 01:03:51 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     82    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

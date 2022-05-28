@@ -1,0 +1,57 @@
+C51 COMPILER V9.54   MAIN                                                                  05/29/2022 01:03:49 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\KEIL\C51\BIN\C51.EXE Src\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Include) DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<stdio.h>
+   2          #include<reg52.h>
+   3          #include<intrins.h>
+   4          #include<uart.h>
+   5          #include"DS18B20.h"
+   6          #include"delay.h"
+   7          #include"ADC0809.h"
+   8          #include"time.h"
+   9          #include"BH1750FVI.h"
+  10          
+  11          #define uint unsigned int
+  12          #define uchar unsigned char
+  13          
+  14          //三个float存储数据
+  15          float temperature;
+  16          float smoke;
+  17          float light;
+  18          
+  19          void main()
+  20          {
+  21   1        uart_init();      //串口初始化
+  22   1        Time_Init();      //定时器初始化
+  23   1        ADC_Init();       //ADC初始化
+  24   1        DS18B20_init();   //DS18B20初始化
+  25   1        while(1)
+  26   1        {   
+  27   2          temperature=temper_change();    //获得转后的温度数据
+  28   2          light = Get_BH1750_Data();      //获得光强数据
+  29   2          smoke=Get_AdcData();            //获得ADC模数转化后的数据，即烟雾电压
+  30   2          printf("temperature = %6.2f,light = %6.2f,smoke = %6.2f\r\n",temperature,light,smoke);    //串口发送
+  31   2          delay_us(1000);                 //延时
+  32   2        }
+  33   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     93    ----
+   CONSTANT SIZE    =     50    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
